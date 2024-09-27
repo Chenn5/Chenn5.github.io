@@ -1,0 +1,51 @@
+[
+  {
+    "objectID": "notebooks/data-screening.html",
+    "href": "notebooks/data-screening.html",
+    "title": "Data Screening",
+    "section": "",
+    "text": "import pandas as pd\nimport matplotlib.pyplot as plt\nImport la-palma.csv - a clean subset of catalogoComunSV_1663233588717.csv:\ndf = pd.read_csv('la-palma.csv')\ndf['DateTime'] = pd.to_datetime(df['DateTime'])\ndf = df.sort_values(by=['DateTime'], ascending=True)\ndf.head()\n\n\n\n\n\n\n\n\nLongitude\nLatitude\nDepth(km)\nMagnitude\nDateTime\n\n\n\n\n11346\n-17.8349\n28.5346\n26.0\n1.6\n2017-03-09 23:44:06+00:00\n\n\n11343\n-17.8459\n28.5491\n27.0\n2.0\n2017-03-10 00:16:10+00:00\n\n\n11344\n-17.8863\n28.5008\n20.0\n2.1\n2017-03-10 00:16:11+00:00\n\n\n11345\n-17.8657\n28.5204\n30.0\n1.6\n2017-03-10 03:20:26+00:00\n\n\n11342\n-17.7156\n28.5985\n0.0\n1.6\n2017-08-21 02:06:55+00:00\ndf.describe()\n\n\n\n\n\n\n\n\nLongitude\nLatitude\nDepth(km)\nMagnitude\n\n\n\n\ncount\n11347.000000\n11347.000000\n11347.000000\n11347.000000\n\n\nmean\n-17.844062\n28.568893\n14.089345\n2.432423\n\n\nstd\n0.027345\n0.021899\n8.624787\n0.705282\n\n\nmin\n-17.995800\n28.310200\n0.000000\n0.200000\n\n\n25%\n-17.854100\n28.558000\n10.100000\n1.900000\n\n\n50%\n-17.838700\n28.564000\n11.300000\n2.600000\n\n\n75%\n-17.829700\n28.574300\n13.900000\n2.900000\n\n\nmax\n-17.705700\n28.697800\n46.900000\n5.100000\ndf.plot.scatter(x=\"Longitude\", y=\"Latitude\", figsize=(12,12), grid=\"on\");\n0.1 Filter\nAlso some rows seem to be missing depth measurements, (see differences in the count for columns above) - take only rows with valid depths\ndf = df[df['Depth(km)'].notna()]\ndf.describe()\n\n\n\n\n\n\n\n\nLongitude\nLatitude\nDepth(km)\nMagnitude\n\n\n\n\ncount\n11347.000000\n11347.000000\n11347.000000\n11347.000000\n\n\nmean\n-17.844062\n28.568893\n14.089345\n2.432423\n\n\nstd\n0.027345\n0.021899\n8.624787\n0.705282\n\n\nmin\n-17.995800\n28.310200\n0.000000\n0.200000\n\n\n25%\n-17.854100\n28.558000\n10.100000\n1.900000\n\n\n50%\n-17.838700\n28.564000\n11.300000\n2.600000\n\n\n75%\n-17.829700\n28.574300\n13.900000\n2.900000\n\n\nmax\n-17.705700\n28.697800\n46.900000\n5.100000\nplt.figure(figsize=(20,6))\nplt.subplot(1,3,1)\ndf[\"Latitude\"].plot.hist(bins=20, density=True)\nplt.subplot(1,3,2)\ndf[\"Longitude\"].plot.hist(bins=20, density=True)\nplt.subplot(1,3,3)\ndf[\"Depth(km)\"].plot.hist(bins=50, density=True)\n1 Spatial Plot\nScatter plot the spatial locations of events\n#| label: fig-spatial-plot\n#| fig-cap: Locations of earthquakes on La Palma since 2017.\n#| fig-alt: A scatterplot of earthquake locations plotting latitude against longitude.\nfrom matplotlib import colormaps\ncmap = colormaps['viridis_r']\nax = df.plot.scatter(x=\"Longitude\", y=\"Latitude\", \n                     s=47-df[\"Depth(km)\"], c=df[\"Magnitude\"], \n                     figsize=(12,10), grid=\"on\", cmap=cmap)\ncolorbar = ax.collections[0].colorbar\ncolorbar.set_label(\"Magnitude\")\n\nplt.show()\n\n\n\n\n\n\n\nFigure 1: Locations of earthquakes on La Palma since 2017.\n1.1 Timeline Plot\nScatter plot the event time series and look for any quantization issues. Have times & dates been loaded correctly?\nax = df.plot.scatter(x=‘DateTime’, y=‘Depth(km)’, figsize=(20,8)) ax.set_ylim(50,0);"
+  },
+  {
+    "objectID": "notebooks/data-screening.html#spatial-plot",
+    "href": "notebooks/data-screening.html#spatial-plot",
+    "title": "Data Screening",
+    "section": "1 Spatial Plot",
+    "text": "1 Spatial Plot\nScatter plot the spatial locations of events"
+  },
+  {
+    "objectID": "index.html#introduction",
+    "href": "index.html#introduction",
+    "title": "Solid-state Batteries",
+    "section": "1.1 Introduction",
+    "text": "1.1 Introduction\n\n\n\n\n\n\n\n\nFigure 1: Timeline of recent earthquakes on La Palma\n\n\n\n\n\nBased on data up to and including 1971, eruptions on La Palma happen every 79.8 years on average. Studies of the magma systems feeding the volcano, such as [1], have proposed that there are two main magma reservoirs feeding the Cumbre Vieja volcano; one in the mantle (30-40km depth) which charges and in turn feeds a shallower crustal reservoir (10-20km depth). Eight eruptions have been recorded since the late 1400s (Figure 1). Data and methods are discussed in Section 1.3. Let x denote the number of eruptions in a year. Then, x can be modeled by a Poisson distribution\n\np(x) = \\frac{e^{-\\lambda} \\lambda^{x}}{x !}\n\\tag{1}\nwhere \\lambda is the rate of eruptions per year. Using Equation 1, the probability of an eruption in the next t years can be calculated.\n\n\n\nTable 1: Recent historic eruptions on La Palma\n\n\n\n\n\nName\nYear\n\n\n\n\nCurrent\n2021\n\n\nTeneguía\n1971\n\n\nNambroque\n1949\n\n\nEl Charco\n1712\n\n\nVolcán San Antonio\n1677\n\n\nVolcán San Martin\n1646\n\n\nTajuya near El Paso\n1585\n\n\nMontaña Quemada\n1492\n\n\n\n\n\n\nTable 1 summarises the eruptions recorded since the colonization of the islands by Europeans in the late 1400s.\n\n\n\n\n\n\nFigure 2: Map of La Palma\n\n\n\nLa Palma is one of the west most islands in the Volcanic Archipelago of the Canary Islands (Figure 2).\n\n\n\n\n\n\n\n\n\nFigure 3: Locations of earthquakes on La Palma since 2017.\n\n\n\n\n\nSource: Data Screening\nFigure 3 shows the location of recent Earthquakes on La Palma."
+  },
+  {
+    "objectID": "index.html#methods",
+    "href": "index.html#methods",
+    "title": "Solid-state Batteries",
+    "section": "1.2 Methods",
+    "text": "1.2 Methods"
+  },
+  {
+    "objectID": "index.html#sec-data-methods",
+    "href": "index.html#sec-data-methods",
+    "title": "Solid-state Batteries",
+    "section": "1.3 Results and Discussion",
+    "text": "1.3 Results and Discussion"
+  },
+  {
+    "objectID": "index.html#conclusion",
+    "href": "index.html#conclusion",
+    "title": "Solid-state Batteries",
+    "section": "1.4 Conclusion",
+    "text": "1.4 Conclusion"
+  },
+  {
+    "objectID": "index.html#references",
+    "href": "index.html#references",
+    "title": "Solid-state Batteries",
+    "section": "References",
+    "text": "References\n\n\n[1] P. Albertus, V. Anandan, C. Ban, N. Balsara, I. Belharouak, J. Buettner-Garrett, Z. Chen, C. Daniel, M. Doeff, N.J. Dudney, B. Dunn, S.J. Harris, S. Herle, E. Herbert, S. Kalnaus, J.A. Libera, D. Lu, S. Martin, B.D. McCloskey, M.T. McDowell, Y.S. Meng, J. Nanda, J. Sakamoto, E.C. Self, S. Tepavcevic, E. Wachsman, C. Wang, A.S. Westover, J. Xiao, T. Yersak, Challenges for and pathways toward Li-metal-based all-solid-state batteries, ACS Energy Letters 6 (2021) 1399–1404. https://doi.org/10.1021/acsenergylett.1c00445."
+  }
+]
